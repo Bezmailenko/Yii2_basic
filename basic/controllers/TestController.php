@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\TestService;
 use yii\web\Controller;
 use app\models\Product;
 
@@ -12,6 +13,7 @@ class TestController extends Controller {
 //    }
 
     public function actionIndex() {
+        $test = \Yii::$app->test->run();
         $model = new Product;
         $model->id = 1;
         $model->category = 'Phones';
@@ -20,7 +22,8 @@ class TestController extends Controller {
 
         return $this->render('index', [
             'var' => 'Hello Test',
-            'model' => $model
+            'model' => $model,
+            'test' => $test
         ]);
     }
 }
