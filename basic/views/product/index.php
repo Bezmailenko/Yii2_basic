@@ -24,12 +24,20 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-
             'id',
-            'name',
+            [
+                'attribute' => 'name',
+                'value' => function(\app\models\Product $model) {
+                    return Html::a($model->name, ['product/view', 'id' => $model->id]);
+                },
+                'format' => 'html',
+            ],
             'price',
-            'created_at',
+            [
+                'attribute' => 'created_at',
+                'format' => 'datetime',
+                'contentOptions' => ['class' => 'small'],
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

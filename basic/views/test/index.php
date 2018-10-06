@@ -2,8 +2,8 @@
 /**
  * @var String $var
  *
- * @var \app\models\Product $model
- * $var string $test
+ * @var $model \app\models\Product
+ * @var string $test
 */
 ?>
 <h1><?= $var ?></h1>
