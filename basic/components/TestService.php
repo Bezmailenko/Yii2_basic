@@ -1,9 +1,9 @@
 <?php
 
 namespace app\components;
-use Yii\base\component;
+use Yii\base\Component;
 
-class TestService extends component
+class TestService extends Component
 {
     public $prop = 'default';
 
