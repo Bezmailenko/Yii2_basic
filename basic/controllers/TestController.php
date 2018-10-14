@@ -11,21 +11,6 @@ use yii\helpers\VarDumper;
 use yii\web\Controller;
 use app\models\Product;
 
-/**
- * Class A
- * @package app\controllers
- * @property $prop int
- */
-class A extends BaseObject {
-    private $prop;
-    public function getProp() {
-        return $this->prop;
-    }
-
-    public function setProp($value) {
-        $this->prop = $value;
-    }
-}
 
 class TestController extends Controller {
 
@@ -93,30 +78,9 @@ class TestController extends Controller {
      * @return string
      */
     public function actionIndex() {
-//        $obj = new A;
-//        $obj->prop = 11;
-//        var_dump($obj->prop); exit;
-//        return \Yii::$app->test->run();
-//        $model = new Product();
-//        $model->name = 'One';
-//        $model->id = 11;
-//        $model->price = 111;
-////
-//        return $this->render('index', [
-//            'var' => 'Hello Test',
-//            'model' => $model,
-//            'test' => $test
-//        ]);
-//        $model = new LoginForm();
-//        $model->username = 'John';
-//        $model->password = '123';
-//        return VarDumper::dumpAsString($model->getAttributes(), 5, true);
-//        $id = 2;
-
         $result = $this->actionSelect();
         return $this->render('index', [
             'result' => $result
-//            'model' => $model
         ]);
     }
 }

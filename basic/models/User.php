@@ -2,103 +2,107 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use Yii;
+
+/**
+ * This is the model class for table "user".
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $name
+ * @property string $password_hash
+ * @property string $access_token
+ * @property int $creator_id
+ * @property int $updater_id
+ * @property int $created_at
+ * @property int $updated_at
+ *
+ * @property Task[] $tasksCreated
+ * @property Task[] $tasksUpdated
+ * @property TaskUser[] $taskUsers
+ * @property Task[] $sharedTasks
+ */
+class User extends \yii\db\ActiveRecord
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
+    const RELATION_TASKS_CREATED = 'tasksCreated';
+    const RELATION_TASKS_UPDATED = 'tasksUpdated';
+    const RELATION_TASKS_USERS = 'taskUsers';
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public static function findIdentity($id)
+    public static function tableName()
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return 'user';
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null)
+    public function rules()
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return [
+            [['username', 'name', 'password_hash', 'creator_id', 'created_at'], 'required'],
+            [['creator_id', 'updater_id', 'created_at', 'updated_at'], 'integer'],
+            [['username', 'name', 'password_hash', 'access_token'], 'string', 'max' => 255],
+        ];
     }
 
     /**
-     * Finds user by username
-     *
-     * @param string $username
-     * @return static|null
+     * @inheritdoc
      */
-    public static function findByUsername($username)
+    public function attributeLabels()
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+        return [
+            'id' => 'ID',
+            'username' => 'Username',
+            'name' => 'Name',
+            'password_hash' => 'Password Hash',
+            'access_token' => 'Access Token',
+            'creator_id' => 'Creator ID',
+            'updater_id' => 'Updater ID',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+        ];
     }
 
     /**
-     * {@inheritdoc}
+     * @return \yii\db\ActiveQuery
      */
-    public function getId()
+    public function getTasksCreated()
     {
-        return $this->id;
+        return $this->hasMany(Task::className(), ['creator_id' => 'id']);
     }
 
     /**
-     * {@inheritdoc}
+     * @return \yii\db\ActiveQuery
      */
-    public function getAuthKey()
+    public function getTasksUpdated()
     {
-        return $this->authKey;
+        return $this->hasMany(Task::className(), ['updater_id' => 'id']);
     }
 
     /**
-     * {@inheritdoc}
+     * @return \yii\db\ActiveQuery
      */
-    public function validateAuthKey($authKey)
+    public function getTaskUsers()
     {
-        return $this->authKey === $authKey;
+        return $this->hasMany(TaskUser::className(), ['user_id' => 'id']);
+
+    }
+
+    public function getSharedTasks()
+    {
+        return $this->hasMany(Task::className(), ['task_id' => 'id'])
+            ->via(self::RELATION_TASKS_USERS);
     }
 
     /**
-     * Validates password
-     *
-     * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @inheritdoc
+     * @return \app\models\query\UserQuery the active query used by this AR class.
      */
-    public function validatePassword($password)
+    public static function find()
     {
-        return $this->password === $password;
+        return new \app\models\query\UserQuery(get_called_class());
     }
 }
