@@ -3,19 +3,21 @@
 use yii\db\Migration;
 
 /**
- * Class m181008_160714_add_task
+ * Class m181015_051116_add_user
  */
-class m181008_160714_add_task extends Migration
+class m181015_051116_add_user extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->createTable('task', [
+        $this->createTable('user', [
             'id' => $this->primaryKey(),
-            'title' => $this->string(255)->notNull(),
-            'description' => $this->text()->notNull(),
+            'username' => $this->string(255)->notNull(),
+            'name' => $this->string(255)->notNull(),
+            'password_hash' => $this->string(255)->notNull(),
+            'access_token' => $this->string(255),
             'creator_id' => $this->integer()->notNull(),
             'updater_id' => $this->integer(),
             'created_at' => $this->integer()->notNull(),
@@ -28,7 +30,7 @@ class m181008_160714_add_task extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('task');
+        $this->dropTable('user');
 
         return true;
     }
@@ -42,7 +44,7 @@ class m181008_160714_add_task extends Migration
 
     public function down()
     {
-        echo "m181008_160714_add_task cannot be reverted.\n";
+        echo "m181015_051116_add_user cannot be reverted.\n";
 
         return false;
     }

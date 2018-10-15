@@ -3,9 +3,9 @@
 use yii\db\Migration;
 
 /**
- * Class m181008_160728_add_task_user
+ * Class m181015_051426_add_task_user
  */
-class m181008_160728_add_task_user extends Migration
+class m181015_051426_add_task_user extends Migration
 {
     /**
      * {@inheritdoc}
@@ -38,7 +38,7 @@ class m181008_160728_add_task_user extends Migration
 
     public function down()
     {
-        echo "m181008_160728_add_task_user cannot be reverted.\n";
+        echo "m181015_051426_add_task_user cannot be reverted.\n";
 
         return false;
     }

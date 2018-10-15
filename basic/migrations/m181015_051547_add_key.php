@@ -3,9 +3,9 @@
 use yii\db\Migration;
 
 /**
- * Class m181014_144140_add_key
+ * Class m181015_051547_add_key
  */
-class m181014_144140_add_key extends Migration
+class m181015_051547_add_key extends Migration
 {
     /**
      * {@inheritdoc}
@@ -40,7 +40,7 @@ class m181014_144140_add_key extends Migration
 
     public function down()
     {
-        echo "m181014_144140_add_key cannot be reverted.\n";
+        echo "m181015_051547_add_key cannot be reverted.\n";
 
         return false;
     }
