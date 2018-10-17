@@ -2,9 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\Task;
 use Yii;
 use app\models\User;
 use app\models\search\UserSearch;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -14,41 +16,39 @@ use yii\filters\VerbFilter;
  */
 class UserController extends Controller
 {
+
     /**
-     * @inheritdoc
+     * @return array
      */
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['POST'],
+                    'logout' => ['post'],
                 ],
             ],
         ];
     }
 
-    /**
-     * @return User[]|array
-     */
+
     public function actionTest()
     {
         //a)
-        $model = new User();
-        $model->username = 'First';
-        $model->name = 'Первый';
-        $model->password_hash = '3049fkj209rj203';
-        $model->created_at = time();
-        $model->creator_id = 1;
-        $model->save();
+        $modelUser =  User::findOne(13);
+        $modelTask =  Task::findOne(3);
 
-        //б)
-        $models =  User::find()->innerJoinWith(User::RELATION_TASKS_CREATED)->all();
-
-        //в)
-//        $models =  User::find()->with(User::RELATION_TASKS_CREATED)->all();
-        return $models;
+        $modelUser->link(User::RELATION_TASKS_ACCESSED, $modelTask);
     }
 
     /**
@@ -57,16 +57,12 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
-//        $searchModel = new UserSearch();
-//        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-//
-//        return $this->render('index', [
-//            'searchModel' => $searchModel,
-//            'dataProvider' => $dataProvider,
-//        ]);
-        $result = $this->actionTest();
+        $searchModel = new UserSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
         return $this->render('index', [
-            'result' => $result
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -91,6 +87,7 @@ class UserController extends Controller
     public function actionCreate()
     {
         $model = new User();
+        $model->creator_id = 1;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);

@@ -11,39 +11,38 @@ use yii\widgets\Pjax;
  *
  * @var $result \app\models\User
  */
-echo 'RESULT: '.\yii\helpers\VarDumper::dumpAsString($result, 5, true);
 
-//$this->title = 'Users';
-//$this->params['breadcrumbs'][] = $this->title;
-//?>
-<!--<div class="user-index">-->
-<!---->
-<!--    <h1>--><?//= Html::encode($this->title) ?><!--</h1>-->
-<!--    --><?php //Pjax::begin(); ?>
-<!--    --><?php //// echo $this->render('_search', ['model' => $searchModel]); ?>
-<!---->
-<!--    <p>-->
-<!--        --><?//= Html::a('Create User', ['create'], ['class' => 'btn btn-success']) ?>
-<!--    </p>-->
-<!---->
-<!--    --><?//= GridView::widget([
-//        'dataProvider' => $dataProvider,
-//        'filterModel' => $searchModel,
-//        'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
-//
-//            'id',
-//            'username',
-//            'name',
-//            'password_hash',
-//            'access_token',
-//            //'creator_id',
-//            //'updater_id',
-//            //'created_at',
-//            //'updated_at',
-//
-//            ['class' => 'yii\grid\ActionColumn'],
-//        ],
-//    ]); ?>
-<!--    --><?php //Pjax::end(); ?>
-<!--</div>-->
+$this->title = 'Users';
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="user-index">
+
+    <h1><?= Html::encode($this->title) ?></h1>
+    <?php Pjax::begin(); ?>
+    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+
+    <p>
+        <?= Html::a('Create User', ['create'], ['class' => 'btn btn-success']) ?>
+    </p>
+
+    <?= GridView::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $searchModel,
+        'columns' => [
+            ['class' => 'yii\grid\SerialColumn'],
+
+            'id',
+            'username',
+            'name',
+            'password_hash',
+            'access_token',
+            //'creator_id',
+            //'updater_id',
+            //'created_at',
+            //'updated_at',
+
+            ['class' => 'yii\grid\ActionColumn'],
+        ],
+    ]); ?>
+    <?php Pjax::end(); ?>
+</div>
