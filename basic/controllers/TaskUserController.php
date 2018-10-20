@@ -2,11 +2,14 @@
 
 namespace app\controllers;
 
+use app\models\Task;
+use app\models\User;
 use Yii;
 use app\models\TaskUser;
 use app\models\search\TaskUserSearch;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -40,21 +43,6 @@ class TaskUserController extends Controller
     }
 
     /**
-     * @inheritdoc
-     */
-//    public function behaviors()
-//    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
-//    }
-
-    /**
      * Lists all TaskUser models.
      * @return mixed
      */
@@ -85,18 +73,29 @@ class TaskUserController extends Controller
     /**
      * Creates a new TaskUser model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param $taskId
      * @return mixed
+     * @throws ForbiddenHttpException
      */
-    public function actionCreate()
+    public function actionCreate($taskId)
     {
+        $task = Task::findOne($taskId);
+        if (!$task || $task->creator_id != Yii::$app->user->id) {
+            throw new ForbiddenHttpException();
+        }
         $model = new TaskUser();
+        $model->task_id = $taskId;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', 'Access granted');
+            return $this->redirect(['task/my']);
         }
 
+        $users = User::find()->where(['<>', 'id', Yii::$app->user->id])->
+        select('username')->indexBy('id')->column();
         return $this->render('create', [
             'model' => $model,
+            'users' => $users
         ]);
     }
 
@@ -126,6 +125,8 @@ class TaskUserController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {

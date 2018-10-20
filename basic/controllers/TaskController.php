@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\query\TaskQuery;
 use Yii;
 use app\models\Task;
 use app\models\search\TaskSearch;
@@ -36,31 +37,35 @@ class TaskController extends Controller
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-//    public function behaviors()
+//    /**
+//     * Lists all Task models.
+//     * @return mixed
+//     */
+//    public function actionIndex()
 //    {
-//        return [
-//            'verbs' => [
-//                'class' => VerbFilter::className(),
-//                'actions' => [
-//                    'delete' => ['POST'],
-//                ],
-//            ],
-//        ];
+//        $searchModel = new TaskSearch();
+//        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+//
+//        return $this->render('index', [
+//            'searchModel' => $searchModel,
+//            'dataProvider' => $dataProvider,
+//        ]);
 //    }
 
     /**
      * Lists all Task models.
      * @return mixed
+     * @var $query TaskQuery
      */
-    public function actionIndex()
+    public function actionMy()
     {
         $searchModel = new TaskSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        return $this->render('index', [
+        $query = $dataProvider->query;
+        $query->byCreator(Yii::$app->user->id);
+
+        return $this->render('my', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
@@ -82,14 +87,17 @@ class TaskController extends Controller
     /**
      * Creates a new Task model.
      * If creation is successful, the browser will be redirected to the 'view' page.
+     * @param $id
      * @return mixed
      */
     public function actionCreate()
     {
         $model = new Task();
+        $model->creator_id = Yii::$app->user->id;
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', 'Task created');
+            return $this->redirect(['task/my']);
         }
 
         return $this->render('create', [
@@ -123,6 +131,8 @@ class TaskController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
