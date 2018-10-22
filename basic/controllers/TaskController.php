@@ -3,11 +3,14 @@
 namespace app\controllers;
 
 use app\models\query\TaskQuery;
+use app\models\TaskUser;
+use app\models\User;
 use Yii;
 use app\models\Task;
 use app\models\search\TaskSearch;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -37,20 +40,44 @@ class TaskController extends Controller
         ];
     }
 
-//    /**
-//     * Lists all Task models.
-//     * @return mixed
-//     */
-//    public function actionIndex()
-//    {
-//        $searchModel = new TaskSearch();
-//        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-//
-//        return $this->render('index', [
-//            'searchModel' => $searchModel,
-//            'dataProvider' => $dataProvider,
-//        ]);
-//    }
+
+    /**
+     * Lists all Task models.
+     * @return mixed
+     * @var $query TaskQuery
+     */
+    public function actionShared()
+    {
+        $searchModel = new TaskSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        $query = $dataProvider->query;
+        $query->byCreator(Yii::$app->user->id)->innerJoinWith(Task::RELATION_TASKS_USERS);
+
+        return $this->render('shared', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    /**
+     * Lists all Task models.
+     * @return mixed
+     * @var $query TaskQuery
+     */
+    public function actionAccessed()
+    {
+        $searchModel = new TaskSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        $query = $dataProvider->query;
+        $query->innerJoinWith(Task::RELATION_TASKS_USERS)->where(['user_id' => Yii::$app->user->id]);
+
+        return $this->render('accessed', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
 
     /**
      * Lists all Task models.
@@ -111,13 +138,18 @@ class TaskController extends Controller
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws ForbiddenHttpException
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
+        if (!$model || $model->creator_id != Yii::$app->user->id) {
+            throw new ForbiddenHttpException();
+        }
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['task/my']);
         }
 
         return $this->render('update', [
@@ -138,7 +170,10 @@ class TaskController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        if (!$model || $model->creator_id != Yii::$app->user->id) {
+            throw new ForbiddenHttpException();
+        }
+        return $this->redirect(['task/my']);
     }
 
     /**

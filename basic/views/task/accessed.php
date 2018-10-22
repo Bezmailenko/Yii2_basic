@@ -27,17 +27,12 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             'title',
             'description:ntext',
+            'taskCreator.username',
             'created_at:datetime',
             'updated_at:datetime',
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{share} {view} {update} {delete}',
-                'buttons' => [
-                    'share' => function ($url, app\models\Task $model, $key) {
-                        $ico = yii\bootstrap\Html::icon('share');
-                        return Html::a($ico, ['task-user/create', 'taskId' => $model->id]);
-                    }
-                ]
+                'template' => '{view}',
             ],
         ],
     ]); ?>

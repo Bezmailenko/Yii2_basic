@@ -13,9 +13,12 @@ use Yii;
  *
  * @property Task $task
  * @property User $user
+ * * @property TaskUser[] $taskUsers
  */
 class TaskUser extends \yii\db\ActiveRecord
 {
+    const RELATION_TASKS_USERS = 'taskUsers';
+
     /**
      * @inheritdoc
      */

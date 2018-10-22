@@ -27,15 +27,28 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             'title',
             'description:ntext',
+            [
+                'label' => 'users',
+                'value' => function (app\models\Task $model) {
+                    $usernames = yii\helpers\ArrayHelper::map($model->taskUsers, 'user_id', 'user.username');
+                    return join(',', $usernames);
+                }
+            ],
             'created_at:datetime',
             'updated_at:datetime',
             [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{share} {view} {update} {delete}',
+                'template' => '{deleteAll} {view} {update} {delete}',
                 'buttons' => [
-                    'share' => function ($url, app\models\Task $model, $key) {
-                        $ico = yii\bootstrap\Html::icon('share');
-                        return Html::a($ico, ['task-user/create', 'taskId' => $model->id]);
+                    'deleteAll' => function ($url, app\models\Task $model, $key) {
+                        $ico = yii\bootstrap\Html::icon('ban-circle');
+                        return Html::a($ico, ['task-user/delete-all', 'taskId' => $model->id],
+                            [
+                                'data' => [
+                                    'confirm' => 'Remove access for all?',
+                                    'method' => 'post',
+                                ]
+                            ]);
                     }
                 ]
             ],

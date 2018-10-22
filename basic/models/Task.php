@@ -20,9 +20,17 @@ use yii\behaviors\TimestampBehavior;
  * @property User $creator
  * @property User $updater
  * @property TaskUser[] $taskUsers
+ * @property TaskUser[] usersTasks
+ * @property User[] $accessedUsers
+ * @property Task[] $accessedTasks
+ * @property Task[] $taskCreator
  */
 class Task extends \yii\db\ActiveRecord
 {
+    const RELATION_TASKS_USERS = 'taskUsers';
+    const RELATION_USERS_TASKS = 'usersTasks';
+    const RELATION_ACCESSED_USERS = 'accessedUsers';
+    const RELATION_ACCESSED_TASKS = 'accessedTasks';
     /**
      * @inheritdoc
      */
@@ -50,11 +58,11 @@ class Task extends \yii\db\ActiveRecord
     public function behaviors() {
         return [
             array(
-                'class' => TimestampBehavior::className,
+                'class' => TimestampBehavior::className(),
                 'updatedAtAttribute' => false
             ),
             [
-                'class' => BlameableBehavior::className,
+                'class' => BlameableBehavior::className(),
                 'createdByAttribute' => 'creator_id',
                 'updatedByAttribute' => 'updater_id',
             ],
@@ -80,7 +88,7 @@ class Task extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreator()
+    public function getTaskCreator()
     {
         return $this->hasOne(User::className(), ['id' => 'creator_id']);
     }
@@ -99,6 +107,26 @@ class Task extends \yii\db\ActiveRecord
     public function getTaskUsers()
     {
         return $this->hasMany(TaskUser::className(), ['task_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUsersTasks()
+    {
+        return $this->hasMany(TaskUser::className(), ['user_id' => 'id']);
+    }
+
+    public function getAccessedUsers()
+    {
+        return $this->hasMany(User::className(), ['id' => 'user_id'])
+            ->via(self::RELATION_TASKS_USERS);
+    }
+
+    public function getAccessedTasks()
+    {
+        return $this->hasMany(Task::className(), ['id' => 'task_id'])
+            ->via(self::RELATION_TASKS_USERS);
     }
 
     /**
